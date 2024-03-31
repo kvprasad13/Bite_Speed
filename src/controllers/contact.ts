@@ -71,13 +71,14 @@ export const createContact = async (req: Request, res: Response) => {
                     }
                 }
             }
+                
             else if (contactsByEmail.length > 0 && contactsByPhoneNumber.length === 0) {
 
                 try {
                     const rootContact = await getRootContact(contactsByEmail[0].id);
 
                     const sql = 'insert into contact (email, phoneNumber,linkedId,linkPrecedence,createdAt,updatedAt) values(?,?,?,?,?,?)';
-                    const contacts = await insertByParameterizedSQLQuery(sql, [email, phoneNumber, rootContact.id, 'secondary', new Date().toISOString(), new Date().toISOString()]);
+                    const contacts = await insertByParameterizedSQLQuery(sql, [email, phoneNumber, rootContact.id, 'secondary', new Date(), new Date()]);
                 
                     const result = await getResult(rootContact.id);
                     res.status(201).json(result);
@@ -91,11 +92,11 @@ export const createContact = async (req: Request, res: Response) => {
             else {
                 try {
                     const rootContact = await getRootContact(contactsByPhoneNumber[0].id);
-                    console.log("rootContact", rootContact);
+                   
                     
 
                     const sql = 'insert into contact (email, phoneNumber,linkedId,linkPrecedence,createdAt,updatedAt) values(?,?,?,?,?,?)';
-                    const insertId = await insertByParameterizedSQLQuery(sql, [email, phoneNumber, rootContact.id, 'secondary', new Date().toISOString(), new Date().toISOString()]);
+                    const insertId = await insertByParameterizedSQLQuery(sql, [email, phoneNumber, rootContact.id, 'secondary', new Date(), new Date()]);
                     
                     const result = await getResult(rootContact.id);
                     res.status(201).json(result);
