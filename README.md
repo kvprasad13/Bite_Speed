@@ -1,10 +1,10 @@
 #  EndPoint
   https://bite-speed-kvprasad13-api.onrender.com/identify
-  ### GET Route:
+  ### GET :
   
       displays the contacts those in the database
       
-  ### POST Route:
+  ### POST :
   
       The JSON should be like:
       {
