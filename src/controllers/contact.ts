@@ -73,61 +73,93 @@ export const createContact = async (req: Request, res: Response) => {
             }
             else if (contactsByEmail.length > 0 && contactsByPhoneNumber.length === 0) {
 
-                const rootContact = await getRootContact(contactsByEmail[0].id);
+                try {
+                    const rootContact = await getRootContact(contactsByEmail[0].id);
 
-                const sql ='insert into contact (email, phoneNumber,linkedId,linkPrecedence,createdAt,updatedAt) values(?,?,?,?,?,?)';
-                const contacts = await getContactsByParameterizedSQLQuery(sql, [email, phoneNumber, rootContact.id, 'secondary', new Date().toISOString(), new Date().toISOString()]);
+                    const sql = 'insert into contact (email, phoneNumber,linkedId,linkPrecedence,createdAt,updatedAt) values(?,?,?,?,?,?)';
+                    const contacts = await insertByParameterizedSQLQuery(sql, [email, phoneNumber, rootContact.id, 'secondary', new Date().toISOString(), new Date().toISOString()]);
                 
-                const result = await getResult(rootContact.id);
-                res.status(201).json(result);
+                    const result = await getResult(rootContact.id);
+                    res.status(201).json(result);
+                }
+                catch (err) { 
+                    console.log(err);
+                    res.status(500).json({"error":err});
+                }
                 
             }
             else {
-                   const rootContact = await getRootContact(contactsByPhoneNumber[0].id);
+                try {
+                    const rootContact = await getRootContact(contactsByPhoneNumber[0].id);
+                    console.log("rootContact", rootContact);
+                    
 
-                const sql ='insert into contact (email, phoneNumber,linkedId,linkPrecedence,createdAt,updatedAt) values(?,?,?,?,?,?)';
-                const contacts = await getContactsByParameterizedSQLQuery(sql, [email, phoneNumber, rootContact.id, 'secondary', new Date().toISOString(), new Date().toISOString()]);
+                    const sql = 'insert into contact (email, phoneNumber,linkedId,linkPrecedence,createdAt,updatedAt) values(?,?,?,?,?,?)';
+                    const insertId = await insertByParameterizedSQLQuery(sql, [email, phoneNumber, rootContact.id, 'secondary', new Date().toISOString(), new Date().toISOString()]);
+                    
+                    const result = await getResult(rootContact.id);
+                    res.status(201).json(result);
+                }
+                catch (err) { 
+                    console.log(err);
+                    res.status(500).json({"error":err});
+                }
                 
-                const result = await getResult(rootContact.id);
-                res.status(201).json(result);
             }
         }
         else {
             
           
-
-              const result = await getResult((await getRootContact(contactsByBoth[0].id)).id);
+            try {
+                const result = await getResult((await getRootContact(contactsByBoth[0].id)).id);
                 res.status(200).json(result);
+            }
+            catch (err) { 
+                console.log(err);
+                res.status(500).json({"error":err});
+            }
         }
 
      }
     else if (email) {
-        if (contactsByEmail.length === 0) {
+        try {
+            if (contactsByEmail.length === 0) {
 
-            const sql = 'insert into contact (email, linkPrecedence,createdAt,updatedAt) values (?,?,?,?)';
+                const sql = 'insert into contact (email, linkPrecedence,createdAt,updatedAt) values (?,?,?,?)';
             
-            const contacts = await getContactsByParameterizedSQLQuery(sql, [email, 'primary', new Date().toISOString(), new Date().toISOString()]);
+                const insertId = await insertByParameterizedSQLQuery(sql, [email, 'primary', new Date(), new Date()]);
+            }
+        
+            const rootContact = await getRootContact( getContactId(await getContactsByEmail(email)));
+            const result = await getResult(rootContact.id);
+        
+            res.status(200).json(result);
         }
-        
-        const rootContact = await getRootContact(await getContactId(await getContactsByEmail(email)));
-        const result = await getResult(rootContact.id);
-        
-                res.status(200).json(result);
+        catch (err) { 
+            console.log(err);
+            res.status(500).json({"error":err});
+        }
 
 
         
     }
-    else if(phoneNumber) {
-          if (contactsByPhoneNumber.length === 0) {
+    else if (phoneNumber) {
+        try {
+            if (contactsByPhoneNumber.length === 0) {
 
-            const sql = 'insert into contact (phoneNumber, linkPrecedence,createdAt,updatedAt) values (?,?,?,?)';
+                const sql = 'insert into contact (phoneNumber, linkPrecedence,createdAt,updatedAt) values (?,?,?,?)';
             
-            const contacts = await getContactsByParameterizedSQLQuery(sql, [phoneNumber, 'primary', new Date().toISOString(), new Date().toISOString()]);
-        }
+                const insertId = await insertByParameterizedSQLQuery(sql, [phoneNumber, 'primary', new Date(), new Date()]);
+            }
         
-            const rootContact = await getRootContact(await getContactId(await getContactsByPhoneNumber(phoneNumber)));
+            const rootContact = await getRootContact( getContactId(await getContactsByPhoneNumber(phoneNumber)));
             const result = await getResult(rootContact.id);
             res.status(200).json(result);
+        }
+        catch (err) { 
+            console.log(err);
+            res.status(500).json({"error":err});
+        }
         
     }
     else {
