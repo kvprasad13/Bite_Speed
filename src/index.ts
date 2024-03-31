@@ -10,7 +10,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 connectDb();
-app.use('/api/',contactRouter)
+app.use('/',contactRouter)
 const port = 8000;
 app.listen(port, () => {
     console.log(`listening on http://localhost:${port}`);
